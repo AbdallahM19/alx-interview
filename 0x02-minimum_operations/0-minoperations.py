@@ -18,4 +18,3 @@ def minOperations(n):
         h += x
         operations += 1  # Paste
     return operations
-
