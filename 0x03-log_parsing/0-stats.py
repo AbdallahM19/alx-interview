@@ -3,21 +3,7 @@
 import sys
 
 
-total_size = 0
-line_count = 0
-status_codes = {
-    "200": 0,
-    "301": 0,
-    "400": 0,
-    "401": 0,
-    "403": 0,
-    "404": 0,
-    "405": 0,
-    "500": 0
-}
-
-
-def print_stats():
+def print_stats(total_size, status_codes):
     """Prints the accumulated statistics"""
     print("File size: {:d}".format(total_size))
     for key, value in sorted(status_codes.items()):
@@ -27,6 +13,18 @@ def print_stats():
 
 def run():
     """main function"""
+    total_size = 0
+    line_count = 0
+    status_codes = {
+        "200": 0,
+        "301": 0,
+        "400": 0,
+        "401": 0,
+        "403": 0,
+        "404": 0,
+        "405": 0,
+        "500": 0
+    }
     try:
         for line in sys.stdin:
             parts = line.split()
@@ -49,10 +47,11 @@ def run():
                 total_size += int(file_size)
                 line_count += 1
 
-                if line_count / 10 == 1.0:
-                    print_stats()
+                if line_count == 10:
+                    print_stats(total_size, status_codes)
+                    line_count = 0
     except (KeyboardInterrupt, EOFError):
-        print_stats()
+        print_stats(total_size, status_codes)
 
 
 if __name__ == '__main__':
