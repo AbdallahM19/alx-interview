@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """
-Write a script that reads stdin line
-by line and computes metrics
+log parsing
 """
 
 import sys
@@ -10,9 +9,9 @@ import re
 
 def output(log: dict) -> None:
     """
-    Output the log
+    helper function to display stats
     """
-    print("File size: {}".format(log["total_size"]))
+    print("File size: {}".format(log["file_size"]))
     for code in sorted(log["code_frequency"]):
         if log["code_frequency"][code]:
             print("{}: {}".format(code, log["code_frequency"][code]))
@@ -24,7 +23,7 @@ if __name__ == "__main__":
 
     line_count = 0
     log = {}
-    log["total_size"] = 0
+    log["file_size"] = 0
     log["code_frequency"] = {
         str(code): 0 for code in [
             200, 301, 400, 401, 403, 404, 405, 500]}
@@ -39,7 +38,7 @@ if __name__ == "__main__":
                 file_size = int(match.group(2))
 
                 # File size
-                log["total_size"] += file_size
+                log["file_size"] += file_size
 
                 # status code
                 if (code.isdecimal()):
