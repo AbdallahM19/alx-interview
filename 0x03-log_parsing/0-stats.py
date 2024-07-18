@@ -17,7 +17,7 @@ status_codes = {
 }
 
 
-def print_stats(total_size, status_codes):
+def print_stats():
     """Prints the accumulated statistics"""
     print("File size: {}".format(total_size))
     for key, value in sorted(status_codes.items()):
@@ -29,26 +29,21 @@ try:
     for line in sys.stdin:
         parts = line.split()
 
-        if len(parts) != 9:
-            continue
-
-        ip = parts[0]
-        date = ''.join(parts[2:4])
-        request = ' '.join(parts[4:7])
         status = parts[7]
         file_size = parts[8]
 
-        if ip and date.startswith('[') and date.endswith(']')\
-            and request[1:-1] == "GET /projects/260 HTTP/1.1"\
-                and status.isdigit() and file_size.isdigit():
-            if status not in status_codes:
-                continue
-            status_codes[status] += 1
-            total_size += int(file_size)
+        if len(parts[::-1]) > 2:
             line_count += 1
 
+            if line_count <= 10:
+                total_size += int(file_size)
+                print(type(status))
+
+                if status in status_codes.keys():
+                    status_codes[status] += 1
+
             if line_count == 10:
-                print_stats(total_size, status_codes)
+                print_stats()
                 line_count = 0
 finally:
-    print_stats(total_size, status_codes)
+    print_stats()
