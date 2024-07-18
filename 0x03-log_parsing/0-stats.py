@@ -38,10 +38,11 @@ try:
         status = parts[7]
         file_size = parts[8]
 
-        if (ip and date.startswith('[') and date.endswith(']')
-            and request[1:-1] == "GET /projects/260 HTTP/1.1"
-            and status.isdigit() and file_size.isdigit()
-                and status in status_codes):
+        if ip and date.startswith('[') and date.endswith(']')\
+            and request[1:-1] == "GET /projects/260 HTTP/1.1"\
+                and status.isdigit() and file_size.isdigit():
+            if status not in status_codes:
+                continue
             status_codes[status] += 1
             total_size += int(file_size)
             line_count += 1
