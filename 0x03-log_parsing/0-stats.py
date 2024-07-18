@@ -3,47 +3,49 @@
 Write a script that reads stdin line
 by line and computes metrics
 """
+
 import sys
+import re
 
 
-total_size = 0
-line_count = 0
-status_codes = {
-    "200": 0,
-    "301": 0,
-    "400": 0,
-    "401": 0,
-    "403": 0,
-    "404": 0,
-    "405": 0,
-    "500": 0
-}
+def print_stats(dict_stats: dict) -> None:
+    """Prints the stats of the dict_stats dictionary"""
+    print("File size: {}".format(dict_stats["total_size"]))
+    for status_frequency in sorted(dict_stats["status_file"]):
+        if dict_stats["status_file"][status_frequency]:
+            print("{}: {}".format(
+                status_frequency, dict_stats["status_file"][status_frequency]
+            ))
 
 
-try:
-    for line in sys.stdin:
-        parts = line.split()
+if __name__ == "__main__":
+    regex = re.compile(
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - \[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\] "GET /projects/260 HTTP/1.1" (.{3}) (\d+)'  # nopep8
+    )
 
-        if len(parts) == 9:
-            status = parts[7]
-            file_size = parts[8]
+    line_count = 0
+    dict_stats = {}
+    dict_stats["total_size"] = 0
+    dict_stats["status_file"] = {
+        str(status): 0 for status in [
+            200, 301, 400, 401, 403, 404, 405, 500]
+    }
 
-            if status in status_codes.keys():
-                status_codes[status] += 1
+    try:
+        for line in sys.stdin:
+            line = line.strip()
+            match = regex.fullmatch(line)
 
-            total_size += int(file_size)
-            line_count += 1
+            if match:
+                line_count += 1
+                status = match.group(1)
+                file_size = int(match.group(2))
+                dict_stats["total_size"] += file_size
 
-        if line_count == 10:
-            line_count = 0
-            print("File size: {}".format(total_size))
-            for key, value in sorted(status_codes.items()):
-                if value != 0:
-                    print("{}: {}".format(key, value))
-except Exception as e:
-    pass
-finally:
-    print("File size: {}".format(total_size))
-    for key, value in sorted(status_codes.items()):
-        if value != 0:
-            print("{}: {}".format(key, value))
+                if status.isdecimal():
+                    dict_stats["status_file"][status] += 1
+
+                if line_count == 10:
+                    print_stats(dict_stats)
+    finally:
+        print_stats(dict_stats)
