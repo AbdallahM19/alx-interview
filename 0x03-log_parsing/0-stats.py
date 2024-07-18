@@ -40,7 +40,7 @@ try:
 
         if port and date.startswith('[') and date.endswith(']')\
             and request[1:-1] == "GET /projects/260 HTTP/1.1"\
-            and status.isdigit() and file_size.isdigit():
+                and status.isdigit() and file_size.isdigit():
 
             if status in status_codes:
                 status_codes[status] += 1
