@@ -4,7 +4,7 @@ import sys
 
 
 total_size = 0
-line_count = 0
+line_count = 1
 status_codes = {
     "200": 0,
     "301": 0,
@@ -40,14 +40,13 @@ try:
 
         if port and date.startswith('[') and date.endswith(']')\
             and request[1:-1] == "GET /projects/260 HTTP/1.1"\
-                and status.isdigit() and file_size.isdigit():
-
-            if status in status_codes:
-                status_codes[status] += 1
-            total_size += int(file_size)
+                and status.isdigit() and file_size.isdigit()\
+                      and status in status_codes:
             line_count += 1
+            total_size += int(file_size)
+            status_codes[status] += 1
 
-            if line_count / 10 == 1.0:
+            if line_count == 10:
                 print_stats()
                 line_count = 0
 finally:
