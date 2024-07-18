@@ -3,16 +3,6 @@
 import sys
 
 
-def print_stats(status_codes, total_size):
-    """
-    Print the accumulated statistics.
-    """
-    print("File size: {}".format(total_size))
-    for code in sorted(status_codes.keys()):
-        if status_codes[code] > 0:
-            print("{}: {}".format(code, status_codes[code]))
-
-
 total_size = 0
 line_count = 0
 status_codes = {
@@ -26,37 +16,33 @@ status_codes = {
     "500": 0
 }
 
+
+def print_stats():
+    """Prints the accumulated statistics"""
+    print("File size: {}".format(total_size))
+    for key, value in sorted(status_codes.items()):
+        if value > 0:
+            print("{}: {}".format(key, value))
+
+
 try:
     for line in sys.stdin:
         parts = line.split()
 
-        # Check if the line has the correct number of parts
-        if len(parts) < 9:
-            continue
+        status = parts[7]
+        file_size = parts[8]
 
-        ip = parts[0]
-        date = parts[3] + " " + parts[4]
-        request = " ".join(parts[5:8])
-        status = parts[8]
-        file_size = parts[9]
-
-        # Validate the format of the line
-        if date.startswith("[") and date.endswith("]") and\
-                request == '"GET /projects/260 HTTP/1.1"' and\
-                status.isdigit() and file_size.isdigit():
-            status = str(status)
-            file_size = int(file_size)
-
-            # Update counters
-            total_size += file_size
-            if status in status_codes:
-                status_codes[status] += 1
+        if len(parts[::-1]) > 2:
             line_count += 1
 
-            # Print stats every 10 lines
+            if line_count <= 10:
+                total_size += int(file_size)
+
+                if status in status_codes.keys():
+                    status_codes[status] += 1
+
             if line_count == 10:
-                print_stats(status_codes, total_size)
+                print_stats()
                 line_count = 0
 finally:
-    # Print final stats
-    print_stats(status_codes, total_size)
+    print_stats()
