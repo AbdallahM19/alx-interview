@@ -4,7 +4,7 @@ import sys
 
 
 total_size = 0
-line_count = 0
+line_count = 1
 status_codes = {
     "200": 0,
     "301": 0,
