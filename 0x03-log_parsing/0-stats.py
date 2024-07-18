@@ -36,8 +36,6 @@ try:
         date = ''.join(parts[2:4])
         request = ' '.join(parts[4:7])
         status = parts[7]
-        if status not in status_codes:
-            continue
         file_size = parts[8]
 
         if port and date.startswith('[') and date.endswith(']')\
