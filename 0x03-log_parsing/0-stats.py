@@ -17,7 +17,7 @@ status_codes = {
 }
 
 
-def print_stats():
+def print_stats() -> None:
     """Prints the accumulated statistics"""
     print("File size: {}".format(total_size))
     for key, value in sorted(status_codes.items()):
