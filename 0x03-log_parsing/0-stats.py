@@ -38,14 +38,16 @@ try:
         status = parts[7]
         file_size = parts[8]
 
-        if port and date.startswith('[') and date.endswith(']')\
+        if date.startswith('[') and date.endswith(']')\
             and request[1:-1] == "GET /projects/260 HTTP/1.1"\
                 and status.isdigit() and file_size.isdigit():
-            line_count += 1
-            total_size += int(file_size)
-            status_codes[status] += 1
 
-            if line_count == 10:
+            if status in status_codes:
+                status_codes[status] += 1
+            total_size += int(file_size)
+            line_count += 1
+
+            if line_count / 10 == 1.0:
                 print_stats()
                 line_count = 0
 finally:
