@@ -25,24 +25,31 @@ def print_stats():
             print("{}: {}".format(key, value))
 
 
-try:
-    for line in sys.stdin:
-        parts = line.split()
+if __name__ == "__main__":
+    try:
+        for line in sys.stdin:
+            parts = line.split()
 
-        status = parts[7]
-        file_size = parts[8]
+            if len(parts) != 9:
+                continue
 
-        if len(parts[::-1]) > 2:
-            line_count += 1
+            port = parts[0]
+            date = ''.join(parts[2:4])
+            request = ' '.join(parts[4:7])
+            status = parts[7]
+            file_size = parts[8]
 
-            if line_count <= 10:
-                total_size += int(file_size)
+            if port and date.startswith('[') and date.endswith(']')\
+                and request[1:-1] == "GET /projects/260 HTTP/1.1"\
+                    and status.isdigit() and file_size.isdigit():
 
-                if status in status_codes.keys():
+                if status in status_codes:
                     status_codes[status] += 1
+                total_size += int(file_size)
+                line_count += 1
 
-            if line_count == 10:
-                print_stats()
-                line_count = 0
-finally:
-    print_stats()
+                if line_count / 10 == 1.0:
+                    print_stats()
+                    line_count = 0
+    finally:
+        print_stats()
