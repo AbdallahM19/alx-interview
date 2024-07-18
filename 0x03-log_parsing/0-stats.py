@@ -36,12 +36,13 @@ try:
         date = ''.join(parts[2:4])
         request = ' '.join(parts[4:7])
         status = parts[7]
+        if status not in status_codes:
+            continue
         file_size = parts[8]
 
         if port and date.startswith('[') and date.endswith(']')\
             and request[1:-1] == "GET /projects/260 HTTP/1.1"\
-                and status.isdigit() and file_size.isdigit()\
-                      and status in status_codes:
+                and status.isdigit() and file_size.isdigit():
             line_count += 1
             total_size += int(file_size)
             status_codes[status] += 1
