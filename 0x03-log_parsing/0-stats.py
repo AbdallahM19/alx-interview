@@ -1,21 +1,65 @@
 #!/usr/bin/python3
+"""
+Write a script that reads stdin line
+by line and computes metrics
+"""
+import re
 
-import sys
+
+def check_line(input_line):
+    """
+    Extracts sections of Input format:
+    <IP Address> - [<date>]
+    "GET /projects/260 HTTP/1.1"
+    <status code> <file size>
+    (if the format is not this one, the line must be skipped)
+    """
+    fp = (
+        r'\s*(?P<ip>\S+)\s*',
+        r'\s*\[(?P<date>\d+\-\d+\-\d+ \d+:\d+:\d+\.\d+)\]',
+        r'\s*"(?P<request>[^"]*)"\s*',
+        r'\s*(?P<status_code>\S+)',
+        r'\s*(?P<total_size>\d+)'
+    )
+    info = {
+        'total_size': 0,
+        'status_code': 0,
+    }
+    log_fmt = '{}\\-{}{}{}{}\\s*'.format(
+        fp[0], fp[1], fp[2], fp[3], fp[4]
+    )
+    resp_match = re.fullmatch(log_fmt, input_line)
+    if resp_match is not None:
+        status_code = resp_match.group('status_code')
+        total_size = int(resp_match.group('total_size'))
+        info['status_code'] = status_code
+        info['total_size'] = total_size
+    return info
 
 
-def print_stats(total_size, status_codes):
-    """Prints the accumulated statistics"""
-    print("File size: {:d}".format(total_size))
-    for key, value in sorted(status_codes.items()):
-        if value > 0:
-            print("{:s}: {:d}".format(key, value))
+def print_statistics(total_size, status_stats):
+    """Prints accumulated statistics"""
+    print('File size: {}'.format(int(total_size)), flush=True)
+    for status_code in sorted(status_stats.keys()):
+        num = status_stats.get(status_code, 0)
+        if num > 0:
+            print('{}: {}'.format(str(status_code), int(num)), flush=True)
+
+
+def update_metrics(line, total_size, status_stats):
+    """Updates the metrics from a given HTTP request log."""
+    line_info = check_line(line)
+    status_code = line_info.get('status_code', '0')
+    if status_code in status_stats.keys():
+        status_stats[status_code] += 1
+    return total_size + line_info['total_size']
 
 
 def run():
     """main function"""
-    total_size = 0
     line_count = 0
-    status_codes = {
+    total_size = 0
+    status_stats = {
         "200": 0,
         "301": 0,
         "400": 0,
@@ -23,35 +67,22 @@ def run():
         "403": 0,
         "404": 0,
         "405": 0,
-        "500": 0
+        "500": 0,
     }
+
     try:
-        for line in sys.stdin:
-            parts = line.split()
-
-            if len(parts) < 9:
-                continue
-
-            port = parts[0]
-            date = ''.join(parts[2:4])
-            request = ' '.join(parts[4:7])
-            status = parts[7]
-            file_size = parts[8]
-
-            if port and date.startswith('[') and date.endswith(']')\
-                and request[1:-1] == "GET /projects/260 HTTP/1.1"\
-                    and status.isdigit() and file_size.isdigit():
-
-                if status in status_codes:
-                    status_codes[status] += 1
-                total_size += int(file_size)
-                line_count += 1
-
-                if line_count == 10:
-                    print_stats(total_size, status_codes)
-                    line_count = 0
+        while True:
+            line = input()
+            total_size = update_metrics(
+                line,
+                total_size,
+                status_stats,
+            )
+            line_count += 1
+            if line_count % 10 == 0:
+                print_statistics(total_size, status_stats)
     except (KeyboardInterrupt, EOFError):
-        print_stats(total_size, status_codes)
+        print_statistics(total_size, status_stats)
 
 
 if __name__ == '__main__':
