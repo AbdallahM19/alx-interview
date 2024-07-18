@@ -37,7 +37,6 @@ try:
 
             if line_count <= 10:
                 total_size += int(file_size)
-                print(type(status))
 
                 if status in status_codes.keys():
                     status_codes[status] += 1
