@@ -9,9 +9,6 @@ def validUTF8(data):
     """
     num_bytes_to_follow = 0
 
-    if data == []:
-        return False
-
     for i in data:
         if num_bytes_to_follow == 0:
             if (i >> 3) == 0b11110:
