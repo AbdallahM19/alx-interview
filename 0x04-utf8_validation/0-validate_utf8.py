@@ -7,25 +7,55 @@ def validUTF8(data):
     a method that determines if a given data
     set represents a valid UTF-8 encoding.
     """
+    skip = 0
+    n = len(data)
 
-    num_bytes_to_follow = 0
+    for i in range(n):
+        if skip > 0:
+            skip -= 1
+            continue
 
-    for i in data:
-        if type(i) != int or i < 0 or i > 0x10ffff:
+        # Check if data[i] is a valid integer within the UTF-8 range
+        if not (0 <= data[i] <= 0x10ffff) and type(data[i]) != int:
             return False
 
-        if num_bytes_to_follow == 0:
-            if (i >> 3) == 0b11110:
-                num_bytes_to_follow = 3
-            elif (i >> 4) == 0b1110:
-                num_bytes_to_follow = 2
-            elif (i >> 5) == 0b110:
-                num_bytes_to_follow = 1
-            elif (i >> 7):
+        # 1-byte character (ASCII)
+        if data[i] <= 0x7f:
+            skip = 0
+
+        # 4-byte character
+        elif data[i] & 0b11111000 == 0b11110000:
+            span = 4
+            if n - i >= span and all(list(map(
+                lambda x: x & 0b11000000 == 0b10000000,
+                data[i + 1: i + span],
+            ))):
+                skip = span - 1
+            else:
+                return False
+
+        # 3-byte character
+        elif data[i] & 0b11110000 == 0b11100000:
+            span = 3
+            if n - i >= span and all(list(map(
+                lambda x: x & 0b11000000 == 0b10000000,
+                data[i + 1: i + span],
+            ))):
+                skip = span - 1
+            else:
+                return False
+
+        # 2-byte character
+        elif data[i] & 0b11100000 == 0b11000000:
+            span = 2
+            if n - i >= span and all(list(map(
+                lambda x: x & 0b11000000 == 0b10000000,
+                data[i + 1: i + span],
+            ))):
+                skip = span - 1
+            else:
                 return False
         else:
-            if (i >> 6) != 0b10:
-                return False
-            num_bytes_to_follow -= 1
+            return False
 
-    return num_bytes_to_follow == 0
+    return True
