@@ -7,21 +7,25 @@ def validUTF8(data):
     a method that determines if a given data
     set represents a valid UTF-8 encoding.
     """
-    count = 0
 
-    for byte in data:
-        if (byte & 0b10000000) == 0:
-            if count > 0:
+    num_bytes_to_follow = 0
+
+    for i in data:
+        if type(i) != int or i < 0 or i > 0x10ffff:
+            return False
+
+        if num_bytes_to_follow == 0:
+            if (i >> 3) == 0b11110:
+                num_bytes_to_follow = 3
+            elif (i >> 4) == 0b1110:
+                num_bytes_to_follow = 2
+            elif (i >> 5) == 0b110:
+                num_bytes_to_follow = 1
+            elif (i >> 7):
                 return False
-            elif byte < 0b11000000:
-                continue
-            elif byte < 0b11100000:
-                count += 1
-            elif byte < 0b11110000:
-                count += 2
-            else:
-                count += 3
         else:
-            count -= 1
+            if (i >> 6) != 0b10:
+                return False
+            num_bytes_to_follow -= 1
 
-    return count == 0
+    return num_bytes_to_follow == 0
