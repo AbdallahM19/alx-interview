@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """UTF-8 Validation"""
 
-
 def validUTF8(data):
     """
     a method that determines if a given data
@@ -16,6 +15,8 @@ def validUTF8(data):
             continue
 
         # Check if data[i] is a valid integer within the UTF-8 range
+        if not (0 <= data[i] <= 0x10ffff) and type(data[i]) != int:
+            return False
 
         # 1-byte character (ASCII)
         if data[i] <= 0x7f:
