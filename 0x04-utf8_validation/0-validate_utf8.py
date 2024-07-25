@@ -19,8 +19,6 @@ def validUTF8(data):
                 num_bytes_to_follow = 1
             elif (i >> 7):
                 return False
-            else:
-                return False
         else:
             if (i >> 6) != 0b10:
                 return False
