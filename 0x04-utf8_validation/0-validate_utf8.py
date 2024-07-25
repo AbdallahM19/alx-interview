@@ -9,12 +9,15 @@ def validUTF8(data):
     """
     num_bytes_to_follow = 0
 
+    if data == []:
+        return False
+
     for i in data:
         if num_bytes_to_follow == 0:
-            if (i >> 4) == 0b1110:
-                num_bytes_to_follow = 2
-            elif (i >> 3) == 0b11110:
+            if (i >> 3) == 0b11110:
                 num_bytes_to_follow = 3
+            elif (i >> 4) == 0b1110:
+                num_bytes_to_follow = 2
             elif (i >> 5) == 0b110:
                 num_bytes_to_follow = 1
             elif (i >> 7):
