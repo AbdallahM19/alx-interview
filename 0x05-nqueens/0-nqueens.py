@@ -12,6 +12,7 @@ def is_valid(board, row, col):
             return False
     return True
 
+
 def solve_nqueens(n, row, board, solutions):
     if row == n:
         solution = [[i, board[i]] for i in range(n)]
@@ -30,7 +31,7 @@ def main():
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
-    
+
     try:
         n = int(sys.argv[1])
     except ValueError:
@@ -47,6 +48,7 @@ def main():
 
     for solution in solutions:
         print(solution)
+
 
 if __name__ == "__main__":
     main()
