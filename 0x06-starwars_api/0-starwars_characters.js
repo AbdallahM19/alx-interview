@@ -8,7 +8,7 @@ if (movieId && process.argv.length > 2) {
   request(url, (error, response, body) => {
     if (error) {
       console.log(error);
-      return
+      return;
     }
 
     const movie = JSON.parse(body);
